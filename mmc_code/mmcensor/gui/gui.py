@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from mmcensor.rt import mmc_realtime
 import os
 import sys
@@ -18,16 +18,19 @@ class mmc_gui:
         ## make tabs
         ##########################
         self.root = tk.Tk()
+        self.root.title("MMCensor")
         self.root.protocol( "WM_DELETE_WINDOW", self.on_close )
         self.root.geometry( "800x800" )
 
         self.save_button = tk.Button( self.root, text= "Save", command = self.save_pushed )
-        self.save_as_button = tk.Button( self.root, text = "Save As (not yet implemented)" )
+        self.save_as_button = tk.Button( self.root, text = "Save As", command = self.save_as )
         self.load_button = tk.Button( self.root, text = "Load", command=self.load_pushed )
+        self.load_from_button = tk.Button( self.root, text = "Load From", command=self.load_from )
 
         self.save_button.grid( row=0, column = 0 )
-        self.save_as_button.grid( row=0, column=1 )
-        self.load_button.grid( row = 0, column = 2 )
+        self.save_as_button.grid( row=1, column=0 )
+        self.load_button.grid( row = 0, column = 1 )
+        self.load_from_button.grid( row = 1, column = 1 )
 
         tab_parent = ttk.Notebook( self.root )
         self.tab_decorate = ttk.Frame( tab_parent )
@@ -35,7 +38,7 @@ class mmc_gui:
         
         tab_parent.add( self.tab_decorate, text="Decorators" )
         tab_parent.add( self.tab_realtime, text="Realtime" )
-        tab_parent.grid( row = 1, column = 0, columnspan = 4 )
+        tab_parent.grid( row = 2, column = 0, columnspan = 4 )
 
         #############################
         ## make realtime tab
@@ -141,6 +144,8 @@ class mmc_gui:
         decorator.initialize( mmc_const.nudenet_v3_classes )
         self.rt.decorators.append( decorator )
         self.decorator_types.append( decorator_type )
+        if self.decorator_config_frame is not None:
+            self.decorator_config_frame.destroy()
         self.redraw_decorators()
 
     def redraw_decorators( self ):
@@ -156,11 +161,17 @@ class mmc_gui:
             tk.Button( self.decorators_frame, text='configure', command= partial( self.configure_decorator, i ) ).grid(row=i, column=3) 
             
     def delete_decorator( self, index ):
+        self.close_decorator_config(index)
         self.rt.decorators.pop(index)
         self.decorator_types.pop(index)
         self.redraw_decorators()
 
     def configure_decorator( self, index ):
+        for i, decorator in enumerate(self.rt.decorators):
+            if i != index:
+                decorator.destroy_config_frame()
+        if self.decorator_config_frame is not None:
+            self.decorator_config_frame.destroy()
         self.redraw_decorators()
         self.decorator_config_frame = tk.Frame( self.tab_decorate )
         self.decorator_save_config_button = tk.Button( self.decorators_frame, text="apply config", command = partial( self.apply_decorator_config, index ))
@@ -172,10 +183,16 @@ class mmc_gui:
 
     def apply_decorator_config( self, index ):
         self.rt.decorators[index].apply_config_from_config_frame()
+        self.redraw_decorators()
+        self.decorator_save_config_button = tk.Button( self.decorators_frame, text="apply config", command = partial( self.apply_decorator_config, index ))
+        self.decorator_close_config_button = tk.Button( self.decorators_frame, text="close", command = partial( self.close_decorator_config, index ))
+        self.decorator_save_config_button.grid(row=index, column=4 )
+        self.decorator_close_config_button.grid(row=index, column=5 )
 
     def close_decorator_config( self, index ):
         self.rt.decorators[index].destroy_config_frame()
-        self.decorator_config_frame.destroy()
+        if self.decorator_config_frame is not None:
+            self.decorator_config_frame.destroy()
         self.redraw_decorators()
     
     def save_pushed( self ):
@@ -199,6 +216,45 @@ class mmc_gui:
         for elt in save_data:
             self.add_decorator( elt[0] )
             self.rt.decorators[-1].import_settings( elt[1] )
+
+        self.redraw_decorators()
+
+    def save_as(self):
+        save_data = []
+        for i in range( len( self.rt.decorators ) ):
+            save_data.append( [ self.decorator_types[i], self.rt.decorators[i].export_settings() ] )
+
+        file_path = filedialog.asksaveasfilename(defaultextension=".json",
+                                                 filetypes=[("JSON files", "*.json")],
+                                                 initialfile="saved_settings.json")
+        if not file_path:
+            return
+
+        try:
+            with open(file_path, 'w') as f:
+                json.dump(save_data, f)
+        except Exception as e:
+            print(f"Error saving file: {e}")
+
+    def load_from(self):
+        file_path = filedialog.askopenfilename(defaultextension=".json",
+                                                filetypes=[("JSON files", "*.json")])
+        if not file_path:
+            return
+
+        try:
+            with open(file_path, 'r') as f:
+                save_data = json.load(f)
+        except Exception as e:
+            print(f"Error loading file: {e}")
+            return
+
+        self.rt.decorators.clear()
+        self.decorator_types.clear()
+
+        for elt in save_data:
+            self.add_decorator(elt[0])
+            self.rt.decorators[-1].import_settings(elt[1])
 
         self.redraw_decorators()
 
