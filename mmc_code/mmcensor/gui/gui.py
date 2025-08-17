@@ -18,6 +18,7 @@ class mmc_gui:
         ## make tabs
         ##########################
         self.root = tk.Tk()
+        self.root.title("MMCensor")
         self.root.protocol( "WM_DELETE_WINDOW", self.on_close )
         self.root.geometry( "800x800" )
 
@@ -141,6 +142,8 @@ class mmc_gui:
         decorator.initialize( mmc_const.nudenet_v3_classes )
         self.rt.decorators.append( decorator )
         self.decorator_types.append( decorator_type )
+        if self.decorator_config_frame is not None:
+            self.decorator_config_frame.destroy()
         self.redraw_decorators()
 
     def redraw_decorators( self ):
@@ -156,11 +159,17 @@ class mmc_gui:
             tk.Button( self.decorators_frame, text='configure', command= partial( self.configure_decorator, i ) ).grid(row=i, column=3) 
             
     def delete_decorator( self, index ):
+        self.close_decorator_config(index)
         self.rt.decorators.pop(index)
         self.decorator_types.pop(index)
         self.redraw_decorators()
 
     def configure_decorator( self, index ):
+        for i, decorator in enumerate(self.rt.decorators):
+            if i != index:
+                decorator.destroy_config_frame()
+        if self.decorator_config_frame is not None:
+            self.decorator_config_frame.destroy()
         self.redraw_decorators()
         self.decorator_config_frame = tk.Frame( self.tab_decorate )
         self.decorator_save_config_button = tk.Button( self.decorators_frame, text="apply config", command = partial( self.apply_decorator_config, index ))
@@ -172,10 +181,16 @@ class mmc_gui:
 
     def apply_decorator_config( self, index ):
         self.rt.decorators[index].apply_config_from_config_frame()
+        self.redraw_decorators()
+        self.decorator_save_config_button = tk.Button( self.decorators_frame, text="apply config", command = partial( self.apply_decorator_config, index ))
+        self.decorator_close_config_button = tk.Button( self.decorators_frame, text="close", command = partial( self.close_decorator_config, index ))
+        self.decorator_save_config_button.grid(row=index, column=4 )
+        self.decorator_close_config_button.grid(row=index, column=5 )
 
     def close_decorator_config( self, index ):
         self.rt.decorators[index].destroy_config_frame()
-        self.decorator_config_frame.destroy()
+        if self.decorator_config_frame is not None:
+            self.decorator_config_frame.destroy()
         self.redraw_decorators()
     
     def save_pushed( self ):
