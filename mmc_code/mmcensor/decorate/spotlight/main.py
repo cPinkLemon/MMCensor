@@ -17,7 +17,12 @@ class decorator:
         imgTmp = img.copy()
         factor = 2 * math.ceil( self.strength * min( img.shape[0:1] ) / 100 /2 ) + 1
         img = cv2.blur( img, (factor,factor), cv2.BORDER_DEFAULT )
-        img = (img * (self.dark/100.)).clip(0,255).astype(np.uint8)
+
+        # use cv2.addWeighted instead of multiplying to improve performance
+        # tested on 14600kf with 3840x2160 img, ~90ms --> ~10ms
+        # img = (img * (self.dark/100.)).clip(0,255).astype(np.uint8)
+        img = cv2.addWeighted(img, self.dark / 100., np.zeros_like(img), 1 - self.dark / 100., 0)
+
         for box in boxes:
             if self.known_classes[box[1]] in self.classes:
                 img[box[3]:box[5],box[2]:box[4]] = imgTmp[box[3]:box[5],box[2]:box[4]]
