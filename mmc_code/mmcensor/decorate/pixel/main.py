@@ -1,7 +1,8 @@
 import importlib
 import tkinter as tk
+import customtkinter as ctk
 import cv2
-from mmcensor.decorate.decorator_utils import feature_selector
+from mmcensor.decorate.decorator_utils import feature_selector_ctk, text_slider
 import mmcensor.geo as geo
 import math
 
@@ -51,31 +52,31 @@ class decorator:
         return '%d classes, strength %d'%(len(self.classes),self.strength)
 
     def populate_config_frame( self, frame ):
-        #self.feature_selector = importlib.import_module('decorator_utils').feature_selector()
         self.strength_var = tk.IntVar()
+        self.strength_var.set(self.strength)
+        self.strength_slider = text_slider(frame, "Strength", self.strength_var, 1, 50)
+        self.strength_slider.grid(row=0, column=0, padx=2, pady=2, sticky="ew")
+
         self.expand_var = tk.IntVar()
+        self.expand_var.set(self.expand)
+        self.expand_slider = text_slider(frame, "Expand", self.expand_var, 0, 30)
+        self.expand_slider.grid(row=1, column=0, padx=2, pady=2, sticky="ew")
+        
         self.soft_var = tk.BooleanVar()
+        self.soft_var.set(self.soft)
+        self.soft_switch = ctk.CTkSwitch(frame, text="Soft", variable=self.soft_var)
+        self.soft_switch.grid(row=2, column=0, padx=20, pady=2, sticky="ew")
 
-        tk.Label( frame, text="Strength (1 to 50 or higher):").grid(row=1,column=0,columnspan=3)
-        self.strength_entry = tk.Entry( frame, textvariable=self.strength_var )
-        self.strength_entry.delete(0,tk.END)
-        self.strength_entry.insert(0,str(self.strength))
-        self.strength_entry.grid(row=1,column=3)
-        tk.Label( frame, text="Expand").grid(row=2,column=0)
-        self.h_entry = tk.Entry( frame, textvariable=self.expand_var )
-        self.h_entry.delete(0,tk.END)
-        self.h_entry.insert(0,str(self.expand))
-        self.h_entry.grid(row=2,column=1)
-        self.soft_entry = tk.Checkbutton( frame, text="Soft",onvalue=True, offvalue=False, variable=self.soft_var)
-        if self.soft:
-            self.soft_entry.select()
-        self.soft_entry.grid(row=2,column=2)
-
-        self.feature_selector = feature_selector()
-
-        class_frame = tk.Frame(frame)
+        self.feature_selector = feature_selector_ctk()
+        class_frame = ctk.CTkFrame(frame)
         self.feature_selector.populate_frame(class_frame, self.known_classes, self.classes)
-        class_frame.grid(row=3,column=0,columnspan=4)
+        class_frame.grid(row=3,column=0, padx=2, pady=2)
+
+        frame.grid_columnconfigure(0, weight=1)
+        frame.grid_rowconfigure(0, weight=0)
+        frame.grid_rowconfigure(1, weight=0)
+        frame.grid_rowconfigure(2, weight=1)
+        frame.grid_rowconfigure(3, weight=1)
 
     def apply_config_from_config_frame( self ):
         self.classes = self.feature_selector.get_selected_classes()

@@ -1,7 +1,8 @@
 import importlib
 import tkinter as tk
+import customtkinter as ctk
 import cv2
-from mmcensor.decorate.decorator_utils import feature_selector
+from mmcensor.decorate.decorator_utils import feature_selector_ctk, text_slider
 import mmcensor.geo as geo
 import math
 import numpy as np
@@ -55,31 +56,30 @@ class decorator:
         return '%d classes, strength %d'%(len(self.classes),self.strength)
 
     def populate_config_frame( self, frame ):
-        #self.feature_selector = importlib.import_module('decorator_utils').feature_selector()
         self.strength_var = tk.IntVar()
-        self.circular_var = tk.IntVar()
+        self.strength_var.set(self.strength)
+        self.strength_slider = text_slider(frame, "Strength", self.strength_var, 1, 50)
+        self.strength_slider.grid(row=0, column=0, padx=2, pady=2, sticky="ew")
+
         self.expand_var = tk.IntVar()
+        self.expand_var.set(self.expand)
+        self.expand_slider = text_slider(frame, "Expand", self.expand_var, 0, 30)
+        self.expand_slider.grid(row=1, column=0, padx=2, pady=2, sticky="ew")
 
-        tk.Label( frame, text="Strength (1 to 50 or higher):").grid(row=0,column=0,columnspan=5)
-        self.strength_entry = tk.Entry( frame, textvariable=self.strength_var, width=5 )
-        self.strength_entry.delete(0,tk.END)
-        self.strength_entry.insert(0,str(self.strength))
-        self.strength_entry.grid(row=1,column=1)
-        tk.Label( frame, text="Expand").grid(row=1,column=2)
-        self.h_entry = tk.Entry( frame, textvariable=self.expand_var, width=5 )
-        self.h_entry.delete(0,tk.END)
-        self.h_entry.insert(0,str(self.expand))
-        self.h_entry.grid(row=1,column=3)
-        self.circle_entry = tk.Checkbutton( frame, text="Circular",onvalue=True, offvalue=False, variable=self.circular_var)
-        if self.circular:
-            self.circle_entry.select()
-        self.circle_entry.grid(row=1,column=4)
+        self.circular_var = tk.BooleanVar()
+        self.circular_switch = ctk.CTkSwitch(frame, text="Circular", variable=self.circular_var)
+        self.circular_switch.grid(row=2, column=0, padx=20, pady=2, sticky="ew")
 
-        self.feature_selector = feature_selector()
-
-        class_frame = tk.Frame(frame)
+        self.feature_selector = feature_selector_ctk()
+        class_frame = ctk.CTkFrame(frame)
         self.feature_selector.populate_frame(class_frame, self.known_classes, self.classes)
-        class_frame.grid(row=2,column=0,columnspan=4)
+        class_frame.grid(row=3,column=0, padx=2, pady=2)
+
+        frame.grid_columnconfigure(0, weight=1)
+        frame.grid_rowconfigure(0, weight=0)
+        frame.grid_rowconfigure(1, weight=0)
+        frame.grid_rowconfigure(2, weight=1)
+        frame.grid_rowconfigure(3, weight=1)
 
     def apply_config_from_config_frame( self ):
         self.classes = self.feature_selector.get_selected_classes()

@@ -1,7 +1,8 @@
 import importlib
 import tkinter as tk
+import customtkinter as ctk
 import cv2
-from mmcensor.decorate.decorator_utils import feature_selector
+from mmcensor.decorate.decorator_utils import feature_selector_ctk, rgb_slider, text_slider
 import mmcensor.geo as geo
 
 class decorator:
@@ -46,49 +47,33 @@ class decorator:
         return '%d classes, color (%d,%d,%d)'%(len(self.classes),self.color[0], self.color[1], self.color[2] )
 
     def populate_config_frame( self, frame ):
-        #self.feature_selector = importlib.import_module('decorator_utils').feature_selector()
-        self.r = tk.IntVar()
-        self.g = tk.IntVar()
-        self.b = tk.IntVar()
+        self.rgb_slider = rgb_slider(frame, *self.color)
+        self.rgb_slider.grid(row=0, column=0, sticky="ew")
+
         self.expand_var = tk.IntVar()
+        self.expand_var.set(self.expand)
+        self.expand_slider = text_slider(frame, "Expand", self.expand_var, 0, 30)
+        self.expand_slider.grid(row=1, column=0, padx=2, pady=2, sticky="ew")
+
         self.circular_var = tk.BooleanVar()
+        self.circular_var.set(self.circular)
+        self.circle_entry = ctk.CTkSwitch(frame, text="Circular", variable=self.circular_var)
+        self.circle_entry.grid(row=2, column=0, padx=2, pady=2, sticky="ew")
 
-        tk.Label( frame, text="Color (0-255)" ).grid(row=0,column=0,columnspan=6)
-        tk.Label( frame, text="R").grid(row=1,column=0)
-        self.r_entry = tk.Entry( frame, textvariable=self.r )
-        self.r_entry.delete(0,tk.END)
-        self.r_entry.insert(0,str(self.color[0]))
-        self.r_entry.grid(row=1,column=1)
-        tk.Label( frame, text="G").grid(row=1,column=2)
-        self.g_entry = tk.Entry( frame, textvariable=self.g )
-        self.g_entry.delete(0,tk.END)
-        self.g_entry.insert(0,str(self.color[1]))
-        self.g_entry.grid(row=1,column=3)
-        tk.Label( frame, text="B").grid(row=1,column=4)
-        self.b_entry = tk.Entry( frame, textvariable=self.b )
-        self.b_entry.delete(0,tk.END)
-        self.b_entry.insert(0,str(self.color[2]))
-        self.b_entry.grid(row=1,column=5)
-        tk.Label( frame, text="Expand").grid(row=2,column=0)
-        self.h_entry = tk.Entry( frame, textvariable=self.expand_var, width=5 )
-        self.h_entry.delete(0,tk.END)
-        self.h_entry.insert(0,str(self.expand))
-        self.h_entry.grid(row=2,column=1)
-        self.circle_entry = tk.Checkbutton( frame, text="Circular",onvalue=True, offvalue=False, variable=self.circular_var)
-        if self.circular:
-            self.circle_entry.select()
-        self.circle_entry.grid(row=2,column=3)
-
-
-        self.feature_selector = feature_selector()
-
-        class_frame = tk.Frame(frame)
+        self.feature_selector = feature_selector_ctk()
+        class_frame = ctk.CTkFrame(frame)
         self.feature_selector.populate_frame(class_frame, self.known_classes, self.classes)
-        class_frame.grid(row=3,column=0,columnspan=6)
+        class_frame.grid(row=3,column=0, padx=2, pady=2)
+
+        frame.grid_columnconfigure(0, weight=1)
+        frame.grid_rowconfigure(0, weight=0)
+        frame.grid_rowconfigure(1, weight=0)
+        frame.grid_rowconfigure(2, weight=1)
+        frame.grid_rowconfigure(3, weight=1)
 
     def apply_config_from_config_frame( self ):
         self.classes = self.feature_selector.get_selected_classes()
-        self.color = (self.r.get(), self.g.get(), self.b.get() )
+        self.color = self.rgb_slider.get()
         self.circular = self.circular_var.get()
         self.expand = self.expand_var.get()
 

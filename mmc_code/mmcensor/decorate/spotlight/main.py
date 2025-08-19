@@ -1,8 +1,9 @@
 import importlib
 import tkinter as tk
+import customtkinter as ctk
 import cv2
 import numpy as np
-from mmcensor.decorate.decorator_utils import feature_selector
+from mmcensor.decorate.decorator_utils import feature_selector_ctk, text_slider
 import math
 
 class decorator:
@@ -44,27 +45,26 @@ class decorator:
         return '%d classes, dark %d, strength %d'%(len(self.classes),self.dark,self.strength )
 
     def populate_config_frame( self, frame ):
-        #self.feature_selector = importlib.import_module('decorator_utils').feature_selector()
         self.dark_var = tk.IntVar()
+        self.dark_var.set(self.dark)
+        self.dark_slider = text_slider(frame, "Dark", self.dark_var, 0, 100)
+        self.dark_slider.grid(row=0, column=0, padx=2, pady=2, sticky="ew")
+
         self.strength_var = tk.IntVar()
+        self.strength_var.set(self.strength)
+        self.strength_slider = text_slider(frame, "Strength", self.strength_var, 1, 20)
+        self.strength_slider.grid(row=1, column=0, padx=2, pady=2, sticky="ew")
 
-        tk.Label( frame, text="Dark (0-100)" ).grid(row=0,column=0)
-        self.dark_entry = tk.Entry( frame, textvariable=self.dark_var )
-        self.dark_entry.delete(0,tk.END)
-        self.dark_entry.insert(0,str(self.dark))
-        self.dark_entry.grid(row=0,column=1)
-        
-        tk.Label( frame, text="Strength (1-50)").grid(row=1,column=0)
-        self.strength_entry = tk.Entry( frame, textvariable=self.strength_var )
-        self.strength_entry.delete(0,tk.END)
-        self.strength_entry.insert(0,str(self.strength))
-        self.strength_entry.grid(row=1,column=1)
-
-        self.feature_selector = feature_selector()
-
-        class_frame = tk.Frame(frame)
+        self.feature_selector = feature_selector_ctk()
+        class_frame = ctk.CTkFrame(frame)
         self.feature_selector.populate_frame(class_frame, self.known_classes, self.classes)
-        class_frame.grid(row=2,column=0,columnspan=2)
+        class_frame.grid(row=2,column=0, padx=2, pady=2)
+
+        frame.grid_columnconfigure(0, weight=1)
+        frame.grid_rowconfigure(0, weight=0)
+        frame.grid_rowconfigure(1, weight=0)
+        frame.grid_rowconfigure(2, weight=1)
+        frame.grid_rowconfigure(3, weight=0)
 
     def apply_config_from_config_frame( self ):
         self.classes = self.feature_selector.get_selected_classes()

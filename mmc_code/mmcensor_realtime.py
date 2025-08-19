@@ -1,6 +1,5 @@
 import mmcensor.gui as gui
-
 if __name__ == '__main__':
     print( 'starting' )
-    s = gui.mmc_gui()
+    s = gui.mmc_gui_ctk()
     s.initialize()

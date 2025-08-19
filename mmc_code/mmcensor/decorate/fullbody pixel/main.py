@@ -1,7 +1,7 @@
 import importlib
 import tkinter as tk
 import cv2
-from mmcensor.decorate.decorator_utils import feature_selector
+from mmcensor.decorate.decorator_utils import text_slider
 import mmcensor.geo as geo
 import math
 
@@ -40,14 +40,10 @@ class decorator:
         return '%d classes, strength %d'%(len(self.classes),self.strength)
 
     def populate_config_frame( self, frame ):
-        #self.feature_selector = importlib.import_module('decorator_utils').feature_selector()
         self.strength_var = tk.IntVar()
-
-        tk.Label( frame, text="Strength (1 to 50 or higher):").grid(row=1,column=0,columnspan=3)
-        self.strength_entry = tk.Entry( frame, textvariable=self.strength_var )
-        self.strength_entry.delete(0,tk.END)
-        self.strength_entry.insert(0,str(self.strength))
-        self.strength_entry.grid(row=1,column=3)
+        self.strength_var.set(self.strength)
+        self.strength_slider = text_slider(frame, "Strength", self.strength_var, 1, 50)
+        self.strength_slider.grid(row=0, column=0, padx=2, pady=2, sticky="new")
 
     def apply_config_from_config_frame( self ):
         self.classes = self.feature_selector.get_selected_classes()
