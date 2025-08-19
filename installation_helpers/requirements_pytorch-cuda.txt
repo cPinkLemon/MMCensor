@@ -9,3 +9,5 @@ torchaudio==2.3.1+cu121
 torchvision==0.18.1+cu121
 ultralytics==8.2.61
 ultralytics-thop==2.0.0
+customtkinter==5.2.2
+CTkListbox==1.5

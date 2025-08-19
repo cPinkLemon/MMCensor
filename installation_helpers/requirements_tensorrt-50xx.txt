@@ -16,3 +16,5 @@ tensorrt-cu12_bindings==10.13.2.6
 tensorrt-cu12_libs==10.13.2.6
 ultralytics==8.3.179
 ultralytics-thop==2.0.0
+customtkinter==5.2.2
+CTkListbox==1.5
