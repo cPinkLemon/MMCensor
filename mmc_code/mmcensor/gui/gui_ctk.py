@@ -204,8 +204,8 @@ class mmc_gui_ctk:
         if self.current_decorator_index == -1:
             self.close_decorator_config()
         elif self.current_decorator_index == index:
-            self.current_decorator_index = -1
             self.close_decorator_config()
+            self.current_decorator_index = -1
         elif self.current_decorator_index > index:
             self.current_decorator_index -= 1
         elif self.current_decorator_index < index:
