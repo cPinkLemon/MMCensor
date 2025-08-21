@@ -44,10 +44,10 @@ class mmc_gui_ctk:
         self.decorator_tab.grid_rowconfigure(0, weight=1)
         self.decorator_tab.grid_rowconfigure(1, weight=0)
 
-        self.runtime_tab = self.maintabview.add("Runtime")
-        self.runtime_tab.columnconfigure(0, weight=1)
-        self.runtime_tab.rowconfigure(0, weight=0)
-        self.runtime_tab.rowconfigure(1, weight=1)
+        self.realtime_tab = self.maintabview.add("Realtime")
+        self.realtime_tab.columnconfigure(0, weight=1)
+        self.realtime_tab.rowconfigure(0, weight=0)
+        self.realtime_tab.rowconfigure(1, weight=1)
         
         ### decorator tab
         self.decorators_frame_left = ctk.CTkFrame(self.decorator_tab,width=200)
@@ -97,20 +97,20 @@ class mmc_gui_ctk:
         self.save_as_button.grid(row=0, column=2, padx=2, pady=2, sticky='nsew')
         self.load_from_button.grid(row=0, column=3, padx=2, pady=2, sticky='nsew')
 
-        ### runtime tab
-        self.runtime_frame_upper = ctk.CTkFrame(self.runtime_tab)
-        self.runtime_frame_upper.grid(row=0, column=0, padx=1, pady=1, sticky='nsew')
-        self.runtime_frame_lower = ctk.CTkFrame(self.runtime_tab)
-        self.runtime_frame_lower.grid(row=1, column=0, padx=1, pady=1, sticky='nsew')
+        ### realtime tab
+        self.realtime_frame_upper = ctk.CTkFrame(self.realtime_tab)
+        self.realtime_frame_upper.grid(row=0, column=0, padx=1, pady=1, sticky='nsew')
+        self.realtime_frame_lower = ctk.CTkFrame(self.realtime_tab)
+        self.realtime_frame_lower.grid(row=1, column=0, padx=1, pady=1, sticky='nsew')
         
         for i in range(5):
-            self.runtime_frame_upper.grid_columnconfigure(i, weight=1)
-        self.runtime_frame_lower.grid_rowconfigure(0, weight=1)
-        self.ready_button = ctk.CTkButton(self.runtime_frame_upper, text="Make Ready", command=self.make_ready_pushed)
-        self.start_button = ctk.CTkButton(self.runtime_frame_upper, text="Start", command=self.start_pushed, state='disabled')
-        self.stop_button = ctk.CTkButton(self.runtime_frame_upper, text="Stop", command=self.stop_pushed, state='disabled')
-        self.refresh_windows_button = ctk.CTkButton(self.runtime_frame_upper, text="Refresh Windows List", command=self.refresh_hwnds)
-        self.screenshot_button = ctk.CTkButton(self.runtime_frame_upper, text="Screenshot", command=self.screenshot_pushed)
+            self.realtime_frame_upper.grid_columnconfigure(i, weight=1)
+        self.realtime_frame_lower.grid_rowconfigure(0, weight=1)
+        self.ready_button = ctk.CTkButton(self.realtime_frame_upper, text="Make Ready", command=self.make_ready_pushed)
+        self.start_button = ctk.CTkButton(self.realtime_frame_upper, text="Start", command=self.start_pushed, state='disabled')
+        self.stop_button = ctk.CTkButton(self.realtime_frame_upper, text="Stop", command=self.stop_pushed, state='disabled')
+        self.refresh_windows_button = ctk.CTkButton(self.realtime_frame_upper, text="Refresh Windows", command=self.refresh_hwnds)
+        self.screenshot_button = ctk.CTkButton(self.realtime_frame_upper, text="Screenshot", command=self.screenshot_pushed)
 
         self.ready_button.grid(row=0, column=0, padx=2, pady=2, sticky='nsew')
         self.start_button.grid(row=0, column=1, padx=2, pady=2, sticky='nsew')
@@ -118,20 +118,20 @@ class mmc_gui_ctk:
         self.refresh_windows_button.grid(row=0, column=3, padx=2, pady=2, sticky='nsew')
         self.screenshot_button.grid(row=0, column=4, padx=2, pady=2, sticky='nsew')
 
-        self.runtime_frame_lower.grid_columnconfigure([0,1,2,3], weight=1)
-        self.runtime_frame_lower.grid_rowconfigure(0, weight=1)
-        self.runtime_frame_lower.grid_rowconfigure(1, weight=0)
-        self.window_list = CTkListbox(self.runtime_frame_lower, multiple_selection=True)
+        self.realtime_frame_lower.grid_columnconfigure([0,1,2,3], weight=1)
+        self.realtime_frame_lower.grid_rowconfigure(0, weight=1)
+        self.realtime_frame_lower.grid_rowconfigure(1, weight=0)
+        self.window_list = CTkListbox(self.realtime_frame_lower, multiple_selection=True)
         self.window_list.bind('<<ListboxSelect>>', self.change_hwnds_selection)
         self.window_list.grid(row=0, column=0, padx=2, pady=2, sticky='nsew', columnspan=4)
 
         self.size_checks = []
         for i in range(len(mmc_const.supported_sizes ) ):
             iv = tk.IntVar( value=(i<2) )
-            ctk.CTkCheckBox( self.runtime_frame_lower, text='net size %s'%(mmc_const.supported_sizes[i],),onvalue=1,offvalue=0,variable=iv,command=self.update_sizes).grid(row=1,column=i,padx=2,pady=5,sticky='sew')
+            ctk.CTkCheckBox( self.realtime_frame_lower, text='net size %s'%(mmc_const.supported_sizes[i],),onvalue=1,offvalue=0,variable=iv,command=self.update_sizes).grid(row=1,column=i,padx=2,pady=5,sticky='sew')
             self.size_checks.append( iv )
 
-        ### runtime object
+        ### realtime object
         self.rt = mmc_realtime()
         self.rt.initialize()
         self.rt.on_gray_callback = self.up
