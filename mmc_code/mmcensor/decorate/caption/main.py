@@ -39,9 +39,19 @@ class decorator:
         self.text = "Not for BETA boys like you!"
 
         dirname = os.path.dirname(__file__)
-        self.captionsP = open("mmcensor/decorate/caption/Captions/CaptionP.txt", "r").read().splitlines()
-        self.captionsB = open("mmcensor/decorate/caption/Captions/CaptionB.txt", "r").read().splitlines()
-        self.captionsGeneral = open("mmcensor/decorate/caption/Captions/CaptionGeneral.txt", "r").read().splitlines()
+        # Load captions from files, if files exist
+        if os.path.exists("mmcensor/decorate/caption/Captions/CaptionP.txt"):
+            self.captionsP = open("mmcensor/decorate/caption/Captions/CaptionP.txt", "r").read().splitlines()
+        else:
+            self.captionsP = ["test caption p1", "test caption p2"]
+        if os.path.exists("mmcensor/decorate/caption/Captions/CaptionB.txt"):
+            self.captionsB = open("mmcensor/decorate/caption/Captions/CaptionB.txt", "r").read().splitlines()
+        else:
+            self.captionsB = ["test caption b1", "test caption b2"]
+        if os.path.exists("mmcensor/decorate/caption/Captions/CaptionGeneral.txt"):
+            self.captionsGeneral = open("mmcensor/decorate/caption/Captions/CaptionGeneral.txt", "r").read().splitlines()
+        else:
+            self.captionsGeneral = ["test caption g1", "test caption g2"]
         return
 
     def decorate( self, img, boxes ):
