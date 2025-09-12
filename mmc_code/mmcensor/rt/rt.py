@@ -66,7 +66,7 @@ class mmc_screencap:
         l = t = r = b = None
         for cam in self.cams:
             l = cam['cam_coords'][0] if l is None else min( l, cam['cam_coords'][0] )
-            t = cam['cam_coords'][1] if t is None else min( l, cam['cam_coords'][1] )
+            t = cam['cam_coords'][1] if t is None else min( t, cam['cam_coords'][1] )
             r = cam['cam_coords'][2] if r is None else max( r, cam['cam_coords'][2] )
             b = cam['cam_coords'][3] if b is None else max( b, cam['cam_coords'][3] )
 

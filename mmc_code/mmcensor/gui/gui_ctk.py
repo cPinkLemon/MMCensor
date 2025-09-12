@@ -304,12 +304,12 @@ class mmc_gui_ctk:
             print(f"Error loading file: {e}")
             return
 
-        self.close_decorator_config()
-        self.current_decorator_index = -1
         for elt in self.decorators_gui:
             elt.destroy()
+        self.decorators_gui.clear()
         self.rt.decorators.clear()
         self.decorator_types.clear()
+        self.current_decorator_index = -1
 
         for elt in save_data:
             self.add_decorator(elt[0])
